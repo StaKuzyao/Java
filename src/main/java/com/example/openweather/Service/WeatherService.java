@@ -28,7 +28,7 @@ public class WeatherService {
     private final CityRepository cityRepository;
 
     private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
-    private static final String API_KEY = "896cc0b7d076260bdbb9f61f6dd5c18e"; // Убедитесь, что у вас есть действующий ключ API
+    private static final String API_KEY = "896cc0b7d076260bdbb9f61f6dd5c18e";
 
     @Autowired
     public WeatherService(UserRepository userRepository, CityRepository cityRepository) {
@@ -43,6 +43,33 @@ public class WeatherService {
     }
 
     @Transactional
+    public User updateUser(Long id, String email, String password, String username) {
+        User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setUsername(username);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteCity(Long id) {
+        cityRepository.deleteById(id);
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Transactional
     public City createCity(String cityName, double lat, double lon, double temperature, int humidity,double windSpeed, Long userId) {
         User user = entityManager.find(User.class, userId);
         if (user == null) {
@@ -50,6 +77,29 @@ public class WeatherService {
         }
         City city = new City(cityName, lat, lon, temperature, humidity,windSpeed, user);
         return cityRepository.save(city);
+    }
+
+    @Transactional
+    public City updateCity(Long id, String cityName, double lat, double lon, double temperature, int humidity, double windSpeed, Long userId) {
+        City city = cityRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid city ID"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+        city.setCity(cityName);
+        city.setLat(lat);
+        city.setLon(lon);
+        city.setTemperature(temperature);
+        city.setHumidity(humidity);
+        city.setWindSpeed(windSpeed);
+        city.setUser(user);
+        return cityRepository.save(city);
+    }
+
+    public List<City> getAllCities() {
+        return cityRepository.findAll();
+    }
+
+
+    public City getCityById(Long cityId) {
+        return cityRepository.findById(cityId).orElse(null);
     }
 
     @Transactional
@@ -64,21 +114,7 @@ public class WeatherService {
         cityRepository.save(city);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
 
-    public List<City> getAllCities() {
-        return cityRepository.findAll();
-    }
-
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElse(null);
-    }
-
-    public City getCityById(Long cityId) {
-        return cityRepository.findById(cityId).orElse(null);
-    }
 
     public WeatherResponse getWeatherByCity(String city) {
         RestTemplate restTemplate = new RestTemplate();
