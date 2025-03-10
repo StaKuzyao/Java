@@ -35,7 +35,7 @@ public class UserService {
         User user = new User(id, email, password, username);
         User savedUser = userRepository.save(user);
         logger.info("Пользователь успешно создан: {}", savedUser);
-        cacheService.addToCache("user_" + savedUser.getId(), savedUser); // Добавление в кэш
+        cacheService.addToCache("user_" + savedUser.getId(), savedUser);
         return savedUser;
     }
 
@@ -51,7 +51,7 @@ public class UserService {
         user.setUsername(username);
         User updatedUser = userRepository.save(user);
         logger.info("Пользователь успешно обновлён: {}", updatedUser);
-        cacheService.addToCache("user_" + updatedUser.getId(), updatedUser); // Обновление в кэше
+        cacheService.addToCache("user_" + updatedUser.getId(), updatedUser);
         return updatedUser;
     }
 
@@ -105,7 +105,7 @@ public class UserService {
             logger.warn("Пользователь с ID: {} не найден", id);
         } else {
             logger.info("Пользователь с ID: {} найден: {}", id, user);
-            cacheService.addToCache(cacheKey, user); // Добавление в кэш
+            cacheService.addToCache(cacheKey, user);
         }
 
         return user;

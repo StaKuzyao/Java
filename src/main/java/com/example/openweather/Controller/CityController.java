@@ -78,4 +78,11 @@ public class CityController {
         WeatherResponse weatherResponse = cityService.getWeatherByCoords(lat, lon);
         return ResponseEntity.ok(weatherResponse);
     }
+
+    @GetMapping("/by-username")
+    public ResponseEntity<List<City>> getCitiesByUsername(@RequestParam String username) {
+        List<City> cities = cityService.getCitiesByUsername(username);
+        return ResponseEntity.ok(cities);
+    }
+
 }
