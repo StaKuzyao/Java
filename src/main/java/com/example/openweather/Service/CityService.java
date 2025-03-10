@@ -4,85 +4,50 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.example.openweather.Model.User;
 import com.example.openweather.Model.City;
-import com.example.openweather.DAO.UserRepository;
+import com.example.openweather.Model.User;
 import com.example.openweather.DAO.CityRepository;
 import com.example.openweather.DTO.WeatherResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.openweather.Model.WeatherDetails;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
 
-
-
 @Service
-public class WeatherService {
-
+public class CityService {
 
     @PersistenceContext
     private EntityManager entityManager;
-    private final UserRepository userRepository;
     private final CityRepository cityRepository;
 
     private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
     private static final String API_KEY = "896cc0b7d076260bdbb9f61f6dd5c18e";
 
     @Autowired
-    public WeatherService(UserRepository userRepository, CityRepository cityRepository) {
-        this.userRepository = userRepository;
+    public CityService(CityRepository cityRepository) {
         this.cityRepository = cityRepository;
     }
 
     @Transactional
-    public User createUser(Long id,String email, String password, String username) {
-        User user = new User(id, email, password, username);
-        return userRepository.save(user);
-    }
-
-    @Transactional
-    public User updateUser(Long id, String email, String password, String username) {
-        User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setUsername(username);
-        return userRepository.save(user);
-    }
-
-    @Transactional
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    @Transactional
-    public void deleteCity(Long id) {
-        cityRepository.deleteById(id);
-    }
-
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
-    }
-
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    @Transactional
-    public City createCity(String cityName, double lat, double lon, double temperature, int humidity,double windSpeed, Long userId) {
+    public City createCity(String cityName, double lat, double lon, double temperature, int humidity, double windSpeed, Long userId) {
         User user = entityManager.find(User.class, userId);
         if (user == null) {
             throw new IllegalArgumentException("Invalid user ID");
         }
-        City city = new City(cityName, lat, lon, temperature, humidity,windSpeed, user);
+        City city = new City(cityName, lat, lon, temperature, humidity, windSpeed, user);
         return cityRepository.save(city);
     }
 
     @Transactional
     public City updateCity(Long id, String cityName, double lat, double lon, double temperature, int humidity, double windSpeed, Long userId) {
         City city = cityRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid city ID"));
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+        User user = entityManager.find(User.class, userId);
+        if (user == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
         city.setCity(cityName);
         city.setLat(lat);
         city.setLon(lon);
@@ -93,28 +58,18 @@ public class WeatherService {
         return cityRepository.save(city);
     }
 
+    @Transactional
+    public void deleteCity(Long id) {
+        cityRepository.deleteById(id);
+    }
+
     public List<City> getAllCities() {
         return cityRepository.findAll();
     }
 
-
     public City getCityById(Long cityId) {
         return cityRepository.findById(cityId).orElse(null);
     }
-
-    @Transactional
-    public void addCityToUser(Long userId, Long cityId) {
-        User user = entityManager.find(User.class, userId);
-        if (user == null) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-
-        City city = cityRepository.findById(cityId).orElseThrow(() -> new IllegalArgumentException("Invalid city ID"));
-        city.setUser(user);
-        cityRepository.save(city);
-    }
-
-
 
     public WeatherResponse getWeatherByCity(String city) {
         RestTemplate restTemplate = new RestTemplate();
