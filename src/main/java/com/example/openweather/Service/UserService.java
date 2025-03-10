@@ -55,6 +55,5 @@ public class UserService {
         if (user == null) {
             throw new IllegalArgumentException("Invalid user ID");
         }
-        // Дополнительная логика может быть добавлена здесь при необходимости.
     }
 }
