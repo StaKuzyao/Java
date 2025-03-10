@@ -1,5 +1,6 @@
 package com.example.openweather.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties("cities")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +22,8 @@ public class User {
     private String password;
     private String username;
 
-    @OneToMany(mappedBy = "user")
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<City> cities = new HashSet<>();
 
 

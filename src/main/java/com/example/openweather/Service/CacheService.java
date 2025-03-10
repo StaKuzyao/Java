@@ -21,4 +21,6 @@ public class CacheService {
     public void clearCache() {
         cache.clear();
     }
+
+    public Map<String, Object> getCache() {return cache;}
 }

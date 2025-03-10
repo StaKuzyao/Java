@@ -1,5 +1,7 @@
 package com.example.openweather.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+
 public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +25,7 @@ public class City {
 
 
     @ManyToOne
+    @JsonIgnore
     private User user;
 
 
