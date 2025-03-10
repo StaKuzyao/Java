@@ -24,7 +24,7 @@ public class CityService {
     private final CityRepository cityRepository;
 
     private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
-    private static final String API_KEY = "896cc0b7d076260bdbb9f61f6dd5c18e";
+    private static final String API_KEY = "************************************";
 
     @Autowired
     public CityService(CityRepository cityRepository) {
