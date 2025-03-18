@@ -7,7 +7,7 @@
 **Вариант:** № 5  
 **ФИО:** Кузьмичев С. Э. 
 ---
-![](https://i.gifer.com/IIM.gif)![](https://i.gifer.com/FtSx.gif)![](https://i.gifer.com/3S5L.gif)![](https://i.gifer.com/21R.gif)![](https://i.gifer.com/21R.gif)<br>
+![](https://i.gifer.com/IIM.gif)![](https://i.gifer.com/FtSx.gif)![](https://i.gifer.com/3S5L.gif)![](https://i.gifer.com/21R.gif)![](https://i.gifer.com/848r.gif)<br>
 ---
 
 ## Описание
