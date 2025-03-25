@@ -1,7 +1,6 @@
 package com.example.openweather.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +28,7 @@ public class City {
     private User user;
 
 
-    public City(){
+    public City() {
 
     }
 

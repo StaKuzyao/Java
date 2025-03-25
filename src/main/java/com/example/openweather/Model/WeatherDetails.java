@@ -12,8 +12,7 @@ public class WeatherDetails {
     private double windSpeed;
 
 
-    public WeatherDetails() {
-    }
+   
 
     public WeatherDetails(double temperature, int humidity, double windSpeed) {
         this.temperature = temperature;
