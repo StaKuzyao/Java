@@ -56,7 +56,8 @@ public class CityService {
     }
 
     @Transactional
-    public City updateCity(Long id, String cityName, double lat, double lon, double temperature, int humidity, double windSpeed, Long userId) {
+    public City updateCity(Long id, String cityName, double lat, double lon,
+                           double temperature, int humidity, double windSpeed, Long userId) {
         logger.info("Обновление города с ID: {}", id);
         logCacheContents();
 

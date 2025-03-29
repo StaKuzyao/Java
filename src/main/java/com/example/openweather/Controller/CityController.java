@@ -100,7 +100,8 @@ public class CityController {
         return ResponseEntity.ok(weatherResponse);
     }
 
-    @Operation(summary = "Получить города пользователя", description = "Возвращает список городов, связанных с указанным именем пользователя")
+    @Operation(summary = "Получить города пользователя",
+            description = "Возвращает список городов, связанных с указанным именем пользователя")
     @GetMapping("/by-username")
     public ResponseEntity<List<City>> getCitiesByUsername(@RequestParam String username) {
         List<City> cities = cityService.getCitiesByUsername(username);
