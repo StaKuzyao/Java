@@ -12,11 +12,14 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+
+
 @RestController
 @RequestMapping("/users")
 @Tag(name = "User Controller", description = "Управление пользователями")
 public class UserController {
 
+    final int STATUS = 500;
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -63,7 +66,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("Ошибка: " + e.getMessage());
         } catch (Exception e) {
             logger.error("Неожиданная ошибка: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body("Ошибка на сервере: " + e.getMessage());
+            return ResponseEntity.status(STATUS).body("Ошибка на сервере: " + e.getMessage());
         }
     }
 
@@ -81,7 +84,8 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @Operation(summary = "Добавить город к пользователю", description = "Привязывает город к пользователю по ID")
+    @Operation(summary = "Добавить город к пользователю",
+            description = "Привязывает город к пользователю по ID")
     @PostMapping("/{userId}/cities/{cityId}")
     public ResponseEntity<?> addCityToUser(@PathVariable Long userId, @PathVariable Long cityId) {
         userService.addCityToUser(userId, cityId);

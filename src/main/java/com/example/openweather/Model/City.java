@@ -32,7 +32,8 @@ public class City {
 
     }
 
-    public City(String city, double lat, double lon, double temperature, int humidity, double windSpeed, User user) {
+    public City(String city, double lat, double lon,
+                double temperature, int humidity, double windSpeed, User user) {
         this.city = city;
         this.lat = lat;
         this.lon = lon;

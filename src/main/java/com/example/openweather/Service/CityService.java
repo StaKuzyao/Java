@@ -39,8 +39,10 @@ public class CityService {
     }
 
     @Transactional
-    public City createCity(String cityName, double lat, double lon, double temperature, int humidity, double windSpeed, Long userId) {
-        logger.info("Создание города: {}, Координаты: ({}, {}), Пользователь ID: {}", cityName, lat, lon, userId);
+    public City createCity(String cityName, double lat, double lon,
+                           double temperature, int humidity, double windSpeed, Long userId) {
+        logger.info("Создание города: {}, Координаты: ({}, {}), Пользователь ID: {}",
+                cityName, lat, lon, userId);
         logCacheContents();
 
         User user = entityManager.find(User.class, userId);
@@ -139,7 +141,8 @@ public class CityService {
 
         } catch (Exception e) {
             logger.error("Ошибка при вызове API для города {}: {}", city, e.getMessage());
-            throw new RuntimeException("Не удалось получить данные о погоде для города " + city + ". Проверьте название города.");
+            throw new RuntimeException("Не удалось получить данные о погоде для города " +
+                    city + ". Проверьте название города.");
         }
     }
 
