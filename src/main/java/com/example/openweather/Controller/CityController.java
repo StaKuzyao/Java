@@ -23,26 +23,35 @@ public class CityController {
 
     private final CityService cityService;
     private static final Logger logger = LoggerFactory.getLogger(CityController.class);
+    final int STATUS = 500;
 
     @Autowired
     public CityController(CityService cityService) {
         this.cityService = cityService;
     }
 
-    @Operation(summary = "Создать новый город", description = "Добавляет новый город в базу данных")
-    @PostMapping
-    public ResponseEntity<?> createCity(@Valid @Parameter(hidden = true) @RequestBody CityRequest cityRequest) {
-        City city = cityService.createCity(
-                cityRequest.getCityName(),
-                cityRequest.getLat(),
-                cityRequest.getLon(),
-                cityRequest.getTemperature(),
-                cityRequest.getHumidity(),
-                cityRequest.getWindSpeed(),
-                cityRequest.getUserId()
-        );
+    @PostMapping("/bulk-create")
+    public ResponseEntity<List<City>> bulkCreateCities(@RequestBody List<CityRequest> cityRequests) {
+        List<City> createdCities = cityService.bulkCreateCities(cityRequests);
+        return ResponseEntity.ok(createdCities);
+    }
+
+
+    @PostMapping("/create")
+    @Operation(summary = "Создать новый город", description = "Создаёт город с переданными параметрами")
+    public ResponseEntity<City> createCity(
+            @RequestParam String cityName,
+            @RequestParam double lat,
+            @RequestParam double lon,
+            @RequestParam double temperature,
+            @RequestParam int humidity,
+            @RequestParam double windSpeed,
+            @RequestParam Long userId
+    ) {
+        City city = cityService.createCity(cityName, lat, lon, temperature, humidity, windSpeed, userId);
         return ResponseEntity.ok(city);
     }
+
 
     @Operation(summary = "Обновить данные города", description = "Обновляет информацию о городе по ID")
     @PutMapping("/{id}")
@@ -60,6 +69,7 @@ public class CityController {
         return ResponseEntity.ok(city);
     }
 
+
     @Operation(summary = "Удалить город", description = "Удаляет город из базы данных по ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCity(@PathVariable Long id) {
@@ -67,21 +77,24 @@ public class CityController {
         return ResponseEntity.ok("Город успешно удален.");
     }
 
-    @Operation(summary = "Получить город по ID", description = "Возвращает информацию о городе по указанному ID")
+    @Operation(summary = "Получить город по ID",
+            description = "Возвращает информацию о городе по указанному ID")
     @GetMapping("/{id}")
     public ResponseEntity<City> getCityById(@PathVariable Long id) {
         City city = cityService.getCityById(id);
         return ResponseEntity.ok(city);
     }
 
-    @Operation(summary = "Получить все города", description = "Возвращает список всех городов")
+    @Operation(summary = "Получить все города",
+            description = "Возвращает список всех городов")
     @GetMapping
     public ResponseEntity<List<City>> getAllCities() {
         List<City> cities = cityService.getAllCities();
         return ResponseEntity.ok(cities);
     }
 
-    @Operation(summary = "Получить погоду по названию города", description = "Возвращает данные о погоде для указанного города")
+    @Operation(summary = "Получить погоду по названию города",
+            description = "Возвращает данные о погоде для указанного города")
     @GetMapping("/weather")
     public ResponseEntity<?> getWeatherByCity(@RequestParam String city) {
         try {
@@ -89,11 +102,13 @@ public class CityController {
             return ResponseEntity.ok(weatherResponse);
         } catch (RuntimeException e) {
             logger.error("Ошибка при получении данных о погоде для города {}: {}", city, e.getMessage());
-            return ResponseEntity.status(500).body("Не удалось получить данные о погоде для города: " + city);
+            return ResponseEntity.status(STATUS).body("Не удалось получить данные о погоде для города: "
+                    + city);
         }
     }
 
-    @Operation(summary = "Получить погоду по координатам", description = "Возвращает данные о погоде для указанных координат")
+    @Operation(summary = "Получить погоду по координатам",
+            description = "Возвращает данные о погоде для указанных координат")
     @GetMapping("/weather/coord")
     public ResponseEntity<?> getWeatherByCoords(@RequestParam double lat, @RequestParam double lon) {
         WeatherResponse weatherResponse = cityService.getWeatherByCoords(lat, lon);
@@ -107,4 +122,8 @@ public class CityController {
         List<City> cities = cityService.getCitiesByUsername(username);
         return ResponseEntity.ok(cities);
     }
+
+
+
+
 }

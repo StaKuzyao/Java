@@ -1,7 +1,11 @@
 package com.example.openweather.Service;
 
+import com.example.openweather.DTO.CityRequest;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.PersistenceContext;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +21,10 @@ import com.example.openweather.Model.WeatherDetails;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+
 import java.util.Map;
+import java.util.stream.Collectors;
+
 
 @Service
 public class CityService {
@@ -26,16 +33,24 @@ public class CityService {
 
     @PersistenceContext
     private EntityManager entityManager;
-    private final CityRepository cityRepository;
-    private final CacheService cacheService;
+    private CityRepository cityRepository;
+    private CacheService cacheService;
+    private UserService userService;
 
+    private CityService cityService;
     private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
     private static final String API_KEY = "896cc0b7d076260bdbb9f61f6dd5c18e";
 
     @Autowired
-    public CityService(CityRepository cityRepository, CacheService cacheService) {
+    public CityService(CityRepository cityRepository, CacheService cacheService, UserService userService) {
         this.cityRepository = cityRepository;
         this.cacheService = cacheService;
+        this.userService = userService;
+    }
+
+    public CityService(UserService userService, CityRepository cityRepository) {
+        this.userService = userService;
+        this.cityRepository = cityRepository;
     }
 
     @Transactional
@@ -240,5 +255,26 @@ public class CityService {
             throw new RuntimeException("Не удалось обработать данные о погоде.");
         }
     }
+
+
+    public List<City> bulkCreateCities(List<CityRequest> cityRequests) {
+        return cityRequests.stream()
+                .filter(request -> request.getCityName() != null && !request.getCityName().isEmpty()) // Фильтруем некорректные данные
+                .map(request -> {
+                    User user = userService.getUserById(request.getUserId()); // Получаем пользователя
+                    return new City(
+                            request.getCityName(),
+                            request.getLat(),
+                            request.getLon(),
+                            request.getTemperature(),
+                            request.getHumidity(),
+                            request.getWindSpeed(),
+                            user
+                    );
+                })
+                .map(cityRepository::save) // Сохраняем каждый город в базу данных
+                .collect(Collectors.toList()); // Собираем список городов
+    }
+
 
 }
