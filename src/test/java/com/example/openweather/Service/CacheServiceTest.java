@@ -14,7 +14,7 @@ class CacheServiceTest {
 
     @BeforeEach
     void setUp() {
-        cacheService = new CacheService(); // Инициализация CacheService перед каждым тестом
+        cacheService = new CacheService();
     }
 
     @Test

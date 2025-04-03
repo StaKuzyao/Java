@@ -33,7 +33,7 @@ class CityServiceTest {
 
     @Test
     void shouldCreateCitiesWhenRequestsAreValid() {
-        // Arrange: создаем список валидных запросов
+
         List<CityRequest> cityRequests = Arrays.asList(
                 new CityRequest("City1", 1.0, 1.0, 25.5, 60, 5.0, 1L),
                 new CityRequest("City2", 2.0, 2.0, 30.0, 50, 3.5, 1L)
@@ -46,29 +46,29 @@ class CityServiceTest {
 
         Mockito.when(cityRepository.save(Mockito.any(City.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Act: выполняем метод
+
         List<City> result = cityService.bulkCreateCities(cityRequests);
 
-        // Assert: проверяем, что количество созданных городов соответствует ожиданиям
+
         assertEquals(expectedCities.size(), result.size());
         verify(cityRepository, times(2)).save(Mockito.any(City.class));
     }
 
     @Test
     void shouldFilterOutInvalidCityRequests() {
-        // Arrange: создаем список с некорректными запросами
+
         List<CityRequest> cityRequests = Arrays.asList(
-                new CityRequest(null, 0.0, 0.0, 0.0, 0, 0.0, 1L), // Некорректные данные
-                new CityRequest("", 0.0, 0.0, 0.0, 0, 0.0, null), // Пустое название
-                new CityRequest("City2", 2.0, 2.0, 30.0, 50, 3.5, 1L) // Валидные данные
+                new CityRequest(null, 0.0, 0.0, 0.0, 0, 0.0, 1L),
+                new CityRequest("", 0.0, 0.0, 0.0, 0, 0.0, null),
+                new CityRequest("City2", 2.0, 2.0, 30.0, 50, 3.5, 1L)
         );
 
         Mockito.when(cityRepository.save(Mockito.any(City.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Act: выполняем метод
+
         List<City> result = cityService.bulkCreateCities(cityRequests);
 
-        // Assert: проверяем, что сохранён только один город
+
         assertEquals(1, result.size());
         verify(cityRepository, times(1)).save(Mockito.any(City.class));
     }
