@@ -17,12 +17,14 @@ class UserServiceTest {
     private UserRepository userRepository;
     private CacheService cacheService;
     private UserService userService;
+    private RequestCounterService requestCounterService;
 
     @BeforeEach
     void setUpMocks() {
         userRepository = Mockito.mock(UserRepository.class);
         cacheService = Mockito.mock(CacheService.class);
-        userService = new UserService(userRepository, cacheService);
+        requestCounterService = Mockito.mock(RequestCounterService.class);
+        userService = new UserService(userRepository, cacheService, requestCounterService);
     }
 
     @Test
