@@ -103,17 +103,18 @@ public class UserService {
             return cachedUser;
         }
 
-        // Если в кэше нет, загружаем из базы данных
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null) {
-            logger.warn("Пользователь с ID: {} не найден", id);
-        } else {
-            logger.info("Пользователь с ID: {} найден: {}", id, user);
-            cacheService.addToCache(cacheKey, user);
-        }
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Пользователь с ID: " + id + " не найден"));
+
+        logger.info("Пользователь с ID: {} найден: {}", id, user);
+
+
+        cacheService.addToCache(cacheKey, user);
 
         return user;
     }
+
 
     public void printCacheContents() {
         logger.info("Содержимое кэша:");

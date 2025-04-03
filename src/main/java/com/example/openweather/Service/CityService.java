@@ -259,9 +259,9 @@ public class CityService {
 
     public List<City> bulkCreateCities(List<CityRequest> cityRequests) {
         return cityRequests.stream()
-                .filter(request -> request.getCityName() != null && !request.getCityName().isEmpty()) // Фильтруем некорректные данные
+                .filter(request -> request.getCityName() != null && !request.getCityName().isEmpty())
                 .map(request -> {
-                    User user = userService.getUserById(request.getUserId()); // Получаем пользователя
+                    User user = userService.getUserById(request.getUserId());
                     return new City(
                             request.getCityName(),
                             request.getLat(),
@@ -272,8 +272,8 @@ public class CityService {
                             user
                     );
                 })
-                .map(cityRepository::save) // Сохраняем каждый город в базу данных
-                .collect(Collectors.toList()); // Собираем список городов
+                .map(cityRepository::save)
+                .collect(Collectors.toList());
     }
 
 
