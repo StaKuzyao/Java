@@ -59,7 +59,7 @@ class CityServiceTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"", " "})
-    void shouldFilterOutInvalidCityRequests_NonNullValues(String cityName) {
+    void shouldFilterOutInvalidCityRequestsNonNullValues(String cityName) {
 
         boolean isValid = cityName != null && !cityName.trim().isEmpty();
 
@@ -69,7 +69,7 @@ class CityServiceTest {
 
     @ParameterizedTest
     @NullSource
-    void shouldFilterOutInvalidCityRequests_NullValue(String cityName) {
+    void shouldFilterOutInvalidCityRequestsNullValue(String cityName) {
 
         boolean isValid = cityName != null && !cityName.trim().isEmpty();
 
