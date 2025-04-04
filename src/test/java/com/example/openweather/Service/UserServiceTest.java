@@ -3,7 +3,8 @@ package com.example.openweather.Service;
 import com.example.openweather.Model.User;
 import com.example.openweather.DAO.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import java.util.Optional;
@@ -27,29 +28,31 @@ class UserServiceTest {
         userService = new UserService(userRepository, cacheService, requestCounterService);
     }
 
-    @Test
-    void shouldFindUserByIdWhenExists() {
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 2L, 3L})
+    void shouldFindUserByIdWhenExists(Long userId) {
 
-        User mockUser = new User(1L, "test@example.com", "password", "username");
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        User mockUser = new User(userId, userId + "@example.com", "password", "username" + userId);
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
 
 
-        User result = userService.getUserById(1L);
+        User result = userService.getUserById(userId);
 
 
         assertEquals(mockUser, result);
-        verify(userRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).findById(userId);
     }
 
-    @Test
-    void shouldThrowExceptionWhenUserDoesNotExist() {
+    @ParameterizedTest
+    @ValueSource(longs = {10L, 20L, 30L})
+    void shouldThrowExceptionWhenUserDoesNotExist(Long userId) {
 
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
-
-        assertThrows(RuntimeException.class, () -> userService.getUserById(1L));
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 
-        verify(userRepository, times(1)).findById(1L);
+        assertThrows(RuntimeException.class, () -> userService.getUserById(userId));
+
+
+        verify(userRepository, times(1)).findById(userId);
     }
 }

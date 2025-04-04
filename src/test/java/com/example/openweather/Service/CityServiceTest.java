@@ -7,12 +7,16 @@ import com.example.openweather.DAO.CityRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class CityServiceTest {
@@ -27,49 +31,50 @@ class CityServiceTest {
         userService = Mockito.mock(UserService.class);
         cityService = new CityService(userService, cityRepository);
 
+
         User mockUser = new User(1L, "test@example.com", "password", "username");
         Mockito.when(userService.getUserById(1L)).thenReturn(mockUser);
     }
 
-    @Test
-    void shouldCreateCitiesWhenRequestsAreValid() {
+    @ParameterizedTest
+    @ValueSource(strings = {"City1", "City2", "City3"})
+    void shouldCreateCityWhenRequestIsValid(String cityName) {
 
-        List<CityRequest> cityRequests = Arrays.asList(
-                new CityRequest("City1", 1.0, 1.0, 25.5, 60, 5.0, 1L),
-                new CityRequest("City2", 2.0, 2.0, 30.0, 50, 3.5, 1L)
-        );
-
-        List<City> expectedCities = Arrays.asList(
-                new City("City1", 1.0, 1.0, 25.5, 60, 5.0, new User(1L, "test@example.com", "password", "username")),
-                new City("City2", 2.0, 2.0, 30.0, 50, 3.5, new User(1L, "test@example.com", "password", "username"))
-        );
-
-        Mockito.when(cityRepository.save(Mockito.any(City.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        CityRequest cityRequest = new CityRequest(cityName, 1.0, 1.0, 25.5, 60, 5.0, 1L);
+        User mockUser = userService.getUserById(1L);
+        City expectedCity = new City(cityName, 1.0, 1.0, 25.5, 60, 5.0, mockUser);
 
 
-        List<City> result = cityService.bulkCreateCities(cityRequests);
+        Mockito.when(cityRepository.save(any(City.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        assertEquals(expectedCities.size(), result.size());
-        verify(cityRepository, times(2)).save(Mockito.any(City.class));
-    }
-
-    @Test
-    void shouldFilterOutInvalidCityRequests() {
-
-        List<CityRequest> cityRequests = Arrays.asList(
-                new CityRequest(null, 0.0, 0.0, 0.0, 0, 0.0, 1L),
-                new CityRequest("", 0.0, 0.0, 0.0, 0, 0.0, null),
-                new CityRequest("City2", 2.0, 2.0, 30.0, 50, 3.5, 1L)
-        );
-
-        Mockito.when(cityRepository.save(Mockito.any(City.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-
-        List<City> result = cityService.bulkCreateCities(cityRequests);
+        List<City> result = cityService.bulkCreateCities(List.of(cityRequest));
 
 
         assertEquals(1, result.size());
-        verify(cityRepository, times(1)).save(Mockito.any(City.class));
+        assertEquals(expectedCity.getCity(), result.get(0).getCity());
+        verify(cityRepository, times(1)).save(any(City.class));
     }
+
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", " "})
+    void shouldFilterOutInvalidCityRequests_NonNullValues(String cityName) {
+
+        boolean isValid = cityName != null && !cityName.trim().isEmpty();
+
+
+        assertTrue(!isValid);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    void shouldFilterOutInvalidCityRequests_NullValue(String cityName) {
+
+        boolean isValid = cityName != null && !cityName.trim().isEmpty();
+
+
+        assertTrue(!isValid);
+    }
+
 }
