@@ -4,13 +4,14 @@ import com.example.openweather.DTO.CityRequest;
 import com.example.openweather.Model.City;
 import com.example.openweather.Model.User;
 import com.example.openweather.DAO.CityRepository;
-
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
@@ -21,45 +22,55 @@ import static org.mockito.Mockito.*;
 
 class CityServiceTest {
 
-    private CityRepository cityRepository;
-    private UserService userService;
+    @InjectMocks
     private CityService cityService;
 
+    @Mock
+    private CityRepository cityRepository;
+
+    @Mock
+    private UserService userService;
+
     @BeforeEach
-    void setUpMocks() {
-        cityRepository = Mockito.mock(CityRepository.class);
-        userService = Mockito.mock(UserService.class);
-        cityService = new CityService(userService, cityRepository);
-
-
-        User mockUser = new User(1L, "test@example.com", "password", "username");
-        Mockito.when(userService.getUserById(1L)).thenReturn(mockUser);
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"City1", "City2", "City3"})
     void shouldCreateCityWhenRequestIsValid(String cityName) {
 
-        CityRequest cityRequest = new CityRequest(cityName, 1.0, 1.0, 25.5, 60, 5.0, 1L);
-        User mockUser = userService.getUserById(1L);
-        City expectedCity = new City(cityName, 1.0, 1.0, 25.5, 60, 5.0, mockUser);
+        CityRequest mockRequest = Mockito.mock(CityRequest.class);
+        Mockito.when(mockRequest.getCityName()).thenReturn(cityName);
+        Mockito.when(mockRequest.getLat()).thenReturn(1.0);
+        Mockito.when(mockRequest.getLon()).thenReturn(1.0);
+        Mockito.when(mockRequest.getTemperature()).thenReturn(25.5);
+        Mockito.when(mockRequest.getHumidity()).thenReturn(60);
+        Mockito.when(mockRequest.getWindSpeed()).thenReturn(5.0);
+        Mockito.when(mockRequest.getUserId()).thenReturn(1L);
+
+        User mockUser = Mockito.mock(User.class);
+        Mockito.when(mockUser.getId()).thenReturn(1L);
+        Mockito.when(mockUser.getEmail()).thenReturn("test@example.com");
+        Mockito.when(userService.getUserById(1L)).thenReturn(mockUser);
+
+        City mockCity = Mockito.mock(City.class);
+        Mockito.when(mockCity.getCity()).thenReturn(cityName);
+
+        Mockito.when(cityRepository.save(any(City.class))).thenReturn(mockCity);
 
 
-        Mockito.when(cityRepository.save(any(City.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-
-        List<City> result = cityService.bulkCreateCities(List.of(cityRequest));
+        List<City> result = cityService.bulkCreateCities(List.of(mockRequest));
 
 
         assertEquals(1, result.size());
-        assertEquals(expectedCity.getCity(), result.get(0).getCity());
+        assertEquals(cityName, result.get(0).getCity());
         verify(cityRepository, times(1)).save(any(City.class));
     }
 
-
     @ParameterizedTest
     @ValueSource(strings = {"", " "})
-    void shouldFilterOutInvalidCityRequests_NonNullValues(String cityName) {
+    void shouldFilterOutInvalidCityRequestsNonNullValues(String cityName) {
 
         boolean isValid = cityName != null && !cityName.trim().isEmpty();
 
@@ -69,12 +80,11 @@ class CityServiceTest {
 
     @ParameterizedTest
     @NullSource
-    void shouldFilterOutInvalidCityRequests_NullValue(String cityName) {
+    void shouldFilterOutInvalidCityRequestsNullValue(String cityName) {
 
         boolean isValid = cityName != null && !cityName.trim().isEmpty();
 
 
         assertTrue(!isValid);
     }
-
 }

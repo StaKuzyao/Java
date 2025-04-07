@@ -5,7 +5,9 @@ import com.example.openweather.DAO.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
@@ -15,29 +17,30 @@ import static org.mockito.Mockito.*;
 
 class UserServiceTest {
 
-    private UserRepository userRepository;
-    private CacheService cacheService;
+    @InjectMocks
     private UserService userService;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private CacheService cacheService;
+
+    @Mock
     private RequestCounterService requestCounterService;
 
     @BeforeEach
-    void setUpMocks() {
-        userRepository = Mockito.mock(UserRepository.class);
-        cacheService = Mockito.mock(CacheService.class);
-        requestCounterService = Mockito.mock(RequestCounterService.class);
-        userService = new UserService(userRepository, cacheService, requestCounterService);
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @ParameterizedTest
     @ValueSource(longs = {1L, 2L, 3L})
     void shouldFindUserByIdWhenExists(Long userId) {
-
-        User mockUser = new User(userId, userId + "@example.com", "password", "username" + userId);
-        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-
+        User mockUser = mock(User.class);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
 
         User result = userService.getUserById(userId);
-
 
         assertEquals(mockUser, result);
         verify(userRepository, times(1)).findById(userId);
@@ -46,12 +49,9 @@ class UserServiceTest {
     @ParameterizedTest
     @ValueSource(longs = {10L, 20L, 30L})
     void shouldThrowExceptionWhenUserDoesNotExist(Long userId) {
-
-        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> userService.getUserById(userId));
-
 
         verify(userRepository, times(1)).findById(userId);
     }

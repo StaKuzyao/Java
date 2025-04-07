@@ -22,13 +22,11 @@ public class UserService {
     private EntityManager entityManager;
     private final UserRepository userRepository;
     private final CacheService cacheService;
-    private final RequestCounterService requestCounterService;
 
     @Autowired
-    public UserService(UserRepository userRepository, CacheService cacheService, RequestCounterService requestCounterService) {
+    public UserService(UserRepository userRepository, CacheService cacheService) {
         this.userRepository = userRepository;
         this.cacheService = cacheService;
-        this.requestCounterService = requestCounterService;
     }
 
     @Transactional
@@ -95,7 +93,7 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        requestCounterService.increment();
+
 
 
         String cacheKey = "user_" + id;

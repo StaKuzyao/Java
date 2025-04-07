@@ -19,6 +19,12 @@ public class RequestCounterAspect {
 
     @Before("execution(* com.example.openweather.Service.*.*(..)) && !execution(* com.example.openweather.Service.RequestCounterService.*(..))")
     public void incrementCounter() {
-        requestCounterService.increment();
+        try {
+            // Увеличиваем глобальный счётчик
+            requestCounterService.increment();
+        } catch (StackOverflowError e) {
+            // Логирование ошибки для диагностики
+            System.err.println("Ошибка переполнения стека в аспекте: " + e.getMessage());
+        }
     }
 }
