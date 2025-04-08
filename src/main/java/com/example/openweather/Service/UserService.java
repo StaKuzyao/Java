@@ -22,15 +22,21 @@ public class UserService {
     private EntityManager entityManager;
     private final UserRepository userRepository;
     private final CacheService cacheService;
+    private final RequestCounterService requestCounterService;
+
 
     @Autowired
-    public UserService(UserRepository userRepository, CacheService cacheService) {
+    public UserService(UserRepository userRepository, CacheService cacheService, RequestCounterService requestCounterService) {
         this.userRepository = userRepository;
         this.cacheService = cacheService;
+        this.requestCounterService = requestCounterService;
     }
 
     @Transactional
     public User createUser(Long id, String email, String password, String username) {
+
+        requestCounterService.increment();
+
         logger.info("Создание пользователя с ID: {}, Email: {}", id, email);
         User user = new User(id, email, password, username);
         User savedUser = userRepository.save(user);
@@ -41,6 +47,9 @@ public class UserService {
 
     @Transactional
     public User updateUser(Long id, String email, String password, String username) {
+
+        requestCounterService.increment();
+
         logger.info("Обновление пользователя с ID: {}", id);
         User user = userRepository.findById(id).orElseThrow(() -> {
             logger.warn("Пользователь с ID: {} не найден", id);
@@ -57,6 +66,9 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long id) {
+
+        requestCounterService.increment();
+
         logger.info("Проверяем существование пользователя с ID: {}", id);
         if (!userRepository.existsById(id)) {
             logger.warn("Пользователь с ID: {} не найден", id);
@@ -68,6 +80,10 @@ public class UserService {
 
 
     public List<User> getAllUsers() {
+
+
+        requestCounterService.increment();
+
         logger.info("Получение всех пользователей");
 
 
@@ -83,6 +99,9 @@ public class UserService {
 
     @Transactional
     public void addCityToUser(Long userId, Long cityId) {
+
+        requestCounterService.increment();
+
         logger.info("Добавление города с ID: {} к пользователю с ID: {}", cityId, userId);
         User user = entityManager.find(User.class, userId);
         if (user == null) {
@@ -94,7 +113,7 @@ public class UserService {
 
     public User getUserById(Long id) {
 
-
+        requestCounterService.increment();
 
         String cacheKey = "user_" + id;
         logger.info("Получение пользователя с ID: {}", id);
@@ -120,6 +139,9 @@ public class UserService {
 
 
     public void printCacheContents() {
+
+        requestCounterService.increment();
+
         logger.info("Содержимое кэша:");
         for (Map.Entry<String, Object> entry : cacheService.getCache().entrySet()) {
             logger.info("Ключ: {}, Значение: {}", entry.getKey(), entry.getValue());

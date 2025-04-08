@@ -33,26 +33,26 @@ public class CityService {
     private CityRepository cityRepository;
     private CacheService cacheService;
     private UserService userService;
-
+    private final RequestCounterService requestCounterService;
     private CityService cityService;
     private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
-    private static final String API_KEY = "896cc0b7d076260bdbb9f61f6dd5c18e";
+    private static final String API_KEY = "****************************";
 
     @Autowired
-    public CityService(CityRepository cityRepository, CacheService cacheService, UserService userService) {
+    public CityService(CityRepository cityRepository, CacheService cacheService, UserService userService, RequestCounterService requestCounterService) {
         this.cityRepository = cityRepository;
         this.cacheService = cacheService;
         this.userService = userService;
+        this.requestCounterService = requestCounterService;
     }
 
-    public CityService(UserService userService, CityRepository cityRepository) {
-        this.userService = userService;
-        this.cityRepository = cityRepository;
-    }
 
     @Transactional
     public City createCity(String cityName, double lat, double lon,
                            double temperature, int humidity, double windSpeed, Long userId) {
+
+        requestCounterService.increment();
+
         logger.info("Создание города: {}, Координаты: ({}, {}), Пользователь ID: {}",
                 cityName, lat, lon, userId);
         logCacheContents();
@@ -72,6 +72,9 @@ public class CityService {
     @Transactional
     public City updateCity(Long id, String cityName, double lat, double lon,
                            double temperature, int humidity, double windSpeed, Long userId) {
+
+        requestCounterService.increment();
+
         logger.info("Обновление города с ID: {}", id);
         logCacheContents();
 
@@ -99,6 +102,9 @@ public class CityService {
 
     @Transactional
     public void deleteCity(Long id) {
+
+        requestCounterService.increment();
+
         logger.info("Удаление города с ID: {}", id);
         logCacheContents();
 
@@ -108,6 +114,9 @@ public class CityService {
     }
 
     public List<City> getAllCities() {
+
+        requestCounterService.increment();
+
         logger.info("Получение всех городов");
         logCacheContents();
 
@@ -117,6 +126,9 @@ public class CityService {
     }
 
     public City getCityById(Long cityId) {
+
+        requestCounterService.increment();
+
         logger.info("Получение города с ID: {}", cityId);
         logCacheContents();
 
@@ -137,6 +149,9 @@ public class CityService {
     }
 
     public WeatherResponse getWeatherByCity(String city) {
+
+        requestCounterService.increment();
+
         logger.info("Получение погодных данных для города: {}", city);
 
 
@@ -160,6 +175,9 @@ public class CityService {
 
 
     public WeatherResponse getWeatherByCoords(double lat, double lon) {
+
+        requestCounterService.increment();
+
         logger.info("Получение погодных данных для координат: lat={}, lon={}", lat, lon);
         logCacheContents();
 
@@ -173,6 +191,9 @@ public class CityService {
     }
 
     private WeatherResponse mapToWeatherResponse(String city, String json) {
+
+        requestCounterService.increment();
+
         try {
             logger.info("Маппинг данных погоды для города: {}", city);
             ObjectMapper objectMapper = new ObjectMapper();
@@ -196,6 +217,9 @@ public class CityService {
     }
 
     private String extractCityFromJson(String json) {
+
+        requestCounterService.increment();
+
         try {
             logger.info("Извлечение названия города из JSON");
             ObjectMapper objectMapper = new ObjectMapper();
@@ -211,6 +235,9 @@ public class CityService {
     }
 
     public List<City> getCitiesByUsername(String username) {
+
+        requestCounterService.increment();
+
         logger.info("Получение всех городов для пользователя с именем: {}", username);
         logCacheContents();
 
@@ -220,6 +247,9 @@ public class CityService {
     }
 
     private void logCacheContents() {
+
+        requestCounterService.increment();
+
         logger.info("Текущее содержимое кэша:");
         for (Map.Entry<String, Object> entry : cacheService.getCache().entrySet()) {
             logger.info("Ключ: {}, Значение: {}", entry.getKey(), entry.getValue());
@@ -227,6 +257,9 @@ public class CityService {
     }
 
     private WeatherResponse mapToWeatherResponse(String json) {
+
+        requestCounterService.increment();
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(json);
@@ -255,6 +288,9 @@ public class CityService {
 
 
     public List<City> bulkCreateCities(List<CityRequest> cityRequests) {
+
+        requestCounterService.increment();
+
         return cityRequests.stream()
                 .filter(request -> request.getCityName() != null && !request.getCityName().isEmpty())
                 .map(request -> {
