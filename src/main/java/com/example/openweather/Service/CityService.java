@@ -36,7 +36,7 @@ public class CityService {
     private final RequestCounterService requestCounterService;
     private CityService cityService;
     private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
-    private static final String API_KEY = "****************************";
+    private static final String API_KEY = "***********************************";
 
     @Autowired
     public CityService(CityRepository cityRepository, CacheService cacheService, UserService userService, RequestCounterService requestCounterService) {
@@ -105,12 +105,13 @@ public class CityService {
 
         requestCounterService.increment();
 
-        logger.info("Удаление города с ID: {}", id);
-        logCacheContents();
-
+        logger.info("Проверяем существование города с ID: {}", id);
+        if (!cityRepository.existsById(id)) {
+            logger.warn("Город с ID: {} не найден", id);
+            throw new IllegalArgumentException("Город с таким ID не существует.");
+        }
         cityRepository.deleteById(id);
-        cacheService.addToCache("city_" + id, null);
-        logger.info("Город с ID: {} успешно удален", id);
+        logger.info("Город с ID: {} успешно удалён.", id);
     }
 
     public List<City> getAllCities() {
